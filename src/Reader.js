@@ -2,22 +2,21 @@ import React from "react";
 import PropTypes from "prop-types";
 import RateIterator from "./RateIterator";
 
-const PERIOD = ".";
-const PERIOD_PAUSE_IN_MS = 1000;
 export default class Reader extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       word: "",
-      wpm: "",
       text: "",
       words: "",
+      wordsPerMin: 0
     };
-    console.log("START");
   }
   componentWillReceiveProps(props) {
-    this.setState({ text: props.text });
+    this.setState({ text: props.text, wordsPerMin: props.wordsPerMin });
   }
+
+
   formatText = text => {
     var words = [];
     text.split(" ").forEach(t => {
@@ -36,22 +35,27 @@ export default class Reader extends React.PureComponent {
   };
 
   run = () => {
-    if (this.state.wpm === "") return;
-    if (!this.iterator) {
+    if (!this.iterator || (this.iterator && this.iterator.completed)) {
       this.iterator = new RateIterator(
         this.formatText(this.props.text),
-        word => { this.setState({ word })},
-        this.wpmToIntervalMS(this.state.wpm)
+        word => {
+          this.setState({ word });
+        },
+        this.wpmToIntervalMS(this.state.wordsPerMin)
       );
     }
     this.iterator.start();
-    
   };
   pause = () => {
     this.iterator.pause();
   };
+
+  reset = () => {
+    this.iterator.reset();
+    this.setState({word:""})
+  }
   onWpmChange = e => {
-    this.setState({ wpm: e.target.value });
+    this.setState({ wordsPerMin: e.target.value });
   };
 
   render() {
@@ -65,7 +69,7 @@ export default class Reader extends React.PureComponent {
             step="50"
             placeholder="Type WPM value, e.g 350"
             style={{ width: "200px", height: "30px" }}
-            value={this.state.wpm}
+            value={this.state.wordsPerMin}
             onChange={this.onWpmChange}
           />
         </div>
@@ -81,6 +85,12 @@ export default class Reader extends React.PureComponent {
           >
             Pause
           </button>
+          <button
+            style={{ width: "100px", height: "30px" }}
+            onClick={this.reset}
+          >
+            Reset
+          </button>
         </span>
       </div>
     );
@@ -88,5 +98,6 @@ export default class Reader extends React.PureComponent {
 }
 
 Reader.propTypes = {
-  text: PropTypes.string.isRequired
+  text: PropTypes.string.isRequired,
+  wordsPerMin: PropTypes.number.isRequired
 };
