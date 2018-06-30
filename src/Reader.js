@@ -16,7 +16,6 @@ export default class Reader extends React.PureComponent {
     this.setState({ text: props.text, wordsPerMin: props.wordsPerMin });
   }
 
-
   formatText = text => {
     var words = [];
     text.split(" ").forEach(t => {
@@ -34,17 +33,17 @@ export default class Reader extends React.PureComponent {
     return Math.floor(1 / (parseInt(wpm) / 60) * 1000);
   };
 
-  run = () => {
+  run = () => { 
     if (!this.iterator || (this.iterator && this.iterator.completed)) {
       this.iterator = new RateIterator(
         this.formatText(this.props.text),
-        word => {
-          this.setState({ word });
-        },
         this.wpmToIntervalMS(this.state.wordsPerMin)
       );
+      this.iterator.pauseOnWord(".", 2000)
     }
-    this.iterator.start();
+    this.iterator.start( word => {      
+      this.setState({ word });
+    });
   };
   pause = () => {
     this.iterator.pause();
@@ -52,7 +51,7 @@ export default class Reader extends React.PureComponent {
 
   reset = () => {
     this.iterator.reset();
-    this.setState({word:""})
+    this.setState({ word:"" })
   }
   onWpmChange = e => {
     this.setState({ wordsPerMin: e.target.value });
@@ -99,5 +98,5 @@ export default class Reader extends React.PureComponent {
 
 Reader.propTypes = {
   text: PropTypes.string.isRequired,
-  wordsPerMin: PropTypes.number.isRequired
+  wordsPerMin: PropTypes.string.isRequired
 };

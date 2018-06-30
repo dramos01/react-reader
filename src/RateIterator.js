@@ -1,11 +1,15 @@
 export default class RateIterator {
-  constructor(array, callback, delay) {
+  constructor(array, delay) {
     this.index = 0;
     this.delay = delay || 200;
     this.array = array || [];
     this.iteratorId = null;
-    this.callback = callback;
     this.completed = false;
+  }
+
+  pauseOnWord(word, delay) {
+    this.wordToPauseOn = word;
+    this.delayOnWord = delay;
   }
 
   pause() {
@@ -17,16 +21,26 @@ export default class RateIterator {
     this.index = 0;
   }
 
-  start() {
+  start(callback) {
     this.completed = false;
     this.iteratorId = setTimeout(() => {
       if (this.index === this.array.length) {
         this.completed = true;
         this.reset();
       } else {
-        this.callback(this.array[this.index], this.index, this.array);
-        this.start();
-        this.index++;
+
+        if(this.wordToPauseOn && this.wordToPauseOn === this.array[this.index] && this.delayOnWord){
+          callback(this.array[this.index], this.index, this.array);
+          this.pause();
+          setTimeout(()=>{
+            this.start(callback);
+            this.index++;
+          },this.delayOnWord)
+        }else{
+          callback(this.array[this.index], this.index, this.array);
+          this.start(callback);
+          this.index++;
+        }
       }
     }, this.delay);
   }

@@ -9,7 +9,7 @@ class App extends Component {
     this.state = {
       wpm: "",
       textArea:
-        "If the version number doesn't show up when typing node -v, you might have to reboot."
+        "If the version number doesn't show up when typing node -v, you might have to reboot. TEST1 TEST2 TEST3 TEST4. aafslja afsljafsl asfla aflj asffds. alfjalfjas. "
     };
   }
   componentWillUpdate(props, state) {
