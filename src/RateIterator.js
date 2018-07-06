@@ -5,11 +5,11 @@ export default class RateIterator {
     this.array = array || [];
     this.iteratorId = null;
     this.completed = false;
+    this.wordDelays = {};
   }
 
   pauseOnWord(word, delay) {
-    this.wordToPauseOn = word;
-    this.delayOnWord = delay;
+    this.wordDelays[word] = delay;
   }
 
   pause() {
@@ -23,20 +23,23 @@ export default class RateIterator {
 
   start(callback) {
     this.completed = false;
+    //console.log("DELAYS", this.wordDelays)
     this.iteratorId = setTimeout(() => {
       if (this.index === this.array.length) {
         this.completed = true;
         this.reset();
       } else {
-
-        if(this.wordToPauseOn && this.wordToPauseOn === this.array[this.index] && this.delayOnWord){
+        const wordDelay = this.wordDelays[this.array[this.index]];
+        if(wordDelay){
+          //console.log("WORD DELAY", this.array[this.index], wordDelay)
           callback(this.array[this.index], this.index, this.array);
           this.pause();
           setTimeout(()=>{
             this.start(callback);
             this.index++;
-          },this.delayOnWord)
+          }, wordDelay)
         }else{
+          //console.log("LOG", this.array[this.index])
           callback(this.array[this.index], this.index, this.array);
           this.start(callback);
           this.index++;

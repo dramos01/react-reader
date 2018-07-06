@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import RateIterator from "./RateIterator";
+import TextParser from './TextParser';
 
 export default class Reader extends React.PureComponent {
   constructor(props) {
@@ -17,15 +18,13 @@ export default class Reader extends React.PureComponent {
   }
 
   formatText = text => {
-    var words = [];
-    text.split(" ").forEach(t => {
-      if (t.endsWith(".")) {
-        words.push(t.substring(0, t.length - 1));
-        words.push(t.charAt(t.length - 1));
-      } else {
-        words.push(t);
-      }
-    });
+    //var words = [];
+    const parser = new TextParser(text);
+    const words = parser.flatten().pad(';').pad('.').pad(',').pad('?').parse();
+    // text.replace(/\n/g, " ").replace(/\;/g, " ; ").replace(/\./g, " . ").replace(/\,/g, " , ").replace(/\?/g, " ? ")..split(" ").forEach(t => {
+    //   words.push(t);
+    // });
+    console.log("WORDS", words)
     return words;
   };
 
@@ -39,7 +38,9 @@ export default class Reader extends React.PureComponent {
         this.formatText(this.props.text),
         this.wpmToIntervalMS(this.state.wordsPerMin)
       );
-      this.iterator.pauseOnWord(".", 2000)
+      this.iterator.pauseOnWord(".", 1000);
+      this.iterator.pauseOnWord("?", 500);
+      this.iterator.pauseOnWord(",", 500);
     }
     this.iterator.start( word => {      
       this.setState({ word });
