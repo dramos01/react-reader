@@ -1,13 +1,16 @@
 export default class RateIterator {
-  constructor(array, delay) {
+  constructor(array) {
     this.index = 0;
-    this.delay = delay || 200;
+    this.delay = 200;
     this.array = array || [];
     this.iteratorId = null;
     this.completed = false;
     this.wordDelays = {};
   }
 
+  setWordDelay(delay) {
+    this.delay = delay;
+  }
   pauseOnWord(word, delay) {
     this.wordDelays[word] = delay;
   }

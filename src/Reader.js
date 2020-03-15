@@ -10,7 +10,7 @@ export default class Reader extends React.PureComponent {
       word: "",
       text: "",
       words: "",
-      wordsPerMin: 0
+      wordsPerMin: 100
     };
   }
   componentWillReceiveProps(props) {
@@ -34,14 +34,13 @@ export default class Reader extends React.PureComponent {
 
   run = () => { 
     if (!this.iterator || (this.iterator && this.iterator.completed)) {
-      this.iterator = new RateIterator(
-        this.formatText(this.props.text),
-        this.wpmToIntervalMS(this.state.wordsPerMin)
-      );
+      this.iterator = new RateIterator(this.formatText(this.props.text));
       this.iterator.pauseOnWord(".", 1000);
       this.iterator.pauseOnWord("?", 500);
       this.iterator.pauseOnWord(",", 500);
     }
+    this.iterator.setWordDelay(this.wpmToIntervalMS(this.state.wordsPerMin))
+
     this.iterator.start( word => {      
       this.setState({ word });
     });
